@@ -1,0 +1,5 @@
+# ForecastKit runtime dependencies (offline: no API keys, no network use)
+numpy==1.26.4
+matplotlib==3.6.3
+# test dependency
+pytest

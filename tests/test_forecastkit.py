@@ -60,6 +60,17 @@ def test_predict_before_fit_raises():
         models.MovingAverage().predict(3)
 
 
+def test_predict_rejects_bad_horizon():
+    # Non-positive horizons should fail with a clear ValueError, not a
+    # cryptic numpy error from deep inside predict().
+    y = np.arange(30, dtype=float)
+    for model in models.all_models():
+        model.fit(y)
+        for bad in (0, -5):
+            with pytest.raises(ValueError, match="positive integer"):
+                model.predict(bad)
+
+
 def test_all_models_share_interface():
     y = np.arange(30, dtype=float)
     for model in models.all_models():

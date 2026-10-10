@@ -38,6 +38,10 @@ class ForecastModel(abc.ABC):
         if not getattr(self, "_fitted", False):
             raise RuntimeError(f"{self.name} must be fitted before predicting")
 
+    def _check_horizon(self, horizon: int) -> None:
+        if not isinstance(horizon, (int, np.integer)) or horizon < 1:
+            raise ValueError(f"horizon must be a positive integer, got {horizon!r}")
+
     def __repr__(self) -> str:  # pragma: no cover - cosmetic
         return f"{self.__class__.__name__}()"
 
@@ -63,6 +67,7 @@ class MovingAverage(ForecastModel):
 
     def predict(self, horizon: int) -> np.ndarray:
         self._check_fitted()
+        self._check_horizon(horizon)
         return np.full(horizon, self._level)
 
 
@@ -106,6 +111,7 @@ class Holt(ForecastModel):
 
     def predict(self, horizon: int) -> np.ndarray:
         self._check_fitted()
+        self._check_horizon(horizon)
         steps = np.arange(1, horizon + 1, dtype=float)
         return np.maximum(self._level + steps * self._trend, 0.0)
 
@@ -131,6 +137,7 @@ class SeasonalNaive(ForecastModel):
 
     def predict(self, horizon: int) -> np.ndarray:
         self._check_fitted()
+        self._check_horizon(horizon)
         idx = np.arange(horizon) % len(self._season)
         return self._season[idx].copy()
 
